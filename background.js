@@ -1,6 +1,6 @@
 chrome.runtime.onInstalled.addListener(() => {
   // Register an alarm used to periodically wake up the extension to start pop ups
-  chrome.alarms.create({ periodInMinutes: (1 / 60) * 3 });
+  chrome.alarms.create({ periodInMinutes: (1 / 60)*15});
 });
 
 chrome.alarms.onAlarm.addListener(async () => {
