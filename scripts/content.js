@@ -1,16 +1,17 @@
-chrome.alarms.onAlarm.addListener(async (alarm) => {
-    console.log("Alarm fired")
-      // get active tab
-    const [tab] = await chrome.tabs.query({
-        active: true,
-        currentWindow: true
-    });
+function showPopup() {
+  const popup = document.createElement("div");
+  popup.style.position = "fixed";
+  popup.style.top = "0";
+  popup.style.left = "0";
+  popup.style.width = "50%";
+  popup.style.height = "50%";
+  popup.style.backgroundColor = "blue"; // Or any color
+  popup.style.zIndex = "999999"; // Ensure it's on top
+  document.body.appendChild(popup);
+}
 
-    if (!tab) return;
-
-    chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        func: createPopup
-    });
-});
-
+chrome.runtime.onMessage.addListener((msg) => {
+    if (msg.phase === 'screentime-alarm') {
+        showPopup();
+    }
+  });

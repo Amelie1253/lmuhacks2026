@@ -13,12 +13,8 @@ tabButton.addEventListener("change", async function() {
     localStorage.setItem("tabState", this.checked)
     if (this.checked) {
         console.log('TAB enabled');
-        console.log("Starting alarm for 1 minute")
-
-        await chrome.alarms.create('screentime-alarm', {
-                delayInMinutes: 1,
-                periodInMinutes: 1
-            });
+        console.log("Starting alarm")
+        chrome.alarms.create({ periodInMinutes: (1 / 60) * 3 });
     }
     else {
         console.log('TAB disabled')
