@@ -1,15 +1,40 @@
-chrome.runtime.onInstalled.addListener(() => {
-  // Register an alarm used to periodically wake up the extension to start pop ups
-  chrome.alarms.create({ periodInMinutes: (1 / 60)*15});
-});
+let phase = 'work';
+let workStart = Date.now();
+
+const WORK_MINUTES = 0.5; 
+const WARN_MINUTES = 2.5;  
+const BREAK_MINUTES = 1; 
+
+chrome.alarms.create('tick', { periodInMinutes: 1/60 }); // every second
 
 chrome.alarms.onAlarm.addListener(async () => {
-  //once timer is up
+  const elapsed = (Date.now() - workStart) / 1000 / 60; // minutes elapsed
+
+  if (phase === 'work' && elapsed >= WORK_MINUTES ) {
+    phase = 'warning';
+    broadcast({ phase: 'warning' });
+    cs
+  }
+
+  if (phase === 'warning' && elapsed >= WORK_MINUTES + WARN_MINUTES) {
+    phase = 'break';
+    broadcast({ phase: 'break' });
+  }
+});
+
+chrome.runtime.onMessage.addListener((msg) => {
+  if (msg.type === 'END_BREAK') {
+    phase = 'work';
+    workStart = Date.now();
+    broadcast({ phase: 'work' });
+  }
+});
+
+async function broadcast(message) {
   const tabs = await chrome.tabs.query({});
   for (const tab of tabs) {
     if (tab.id && tab.url && !tab.url.startsWith('chrome://') && !tab.url.startsWith('chrome-extension://')) {
-      chrome.tabs.sendMessage(tab.id, {phase: 'alarm'}).catch(() => {});
+      chrome.tabs.sendMessage(tab.id, message).catch(() => {});
     }
   }
-  console.log("timer!")
-});
+}

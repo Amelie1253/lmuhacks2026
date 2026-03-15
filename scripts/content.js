@@ -1,4 +1,6 @@
 const occupiedRects = [];
+let breakOverlay = null;
+let breakInterval = null;
 
 const BLOB_CONFIGS = [
   {
@@ -82,6 +84,18 @@ function findOpenPosition(width, height) {
   return null;
 }
 
+function startWarningPopups() {
+  showPopup(); // spawn one immediately
+  warningInterval = setInterval(() => {
+    showPopup();
+  }, 5000);
+}
+
+function stopWarningPopups() {
+  clearTimeout(warningInterval);
+  warningInterval = null;
+}
+
 function showPopup() {
   const width = 300,
     height = 300;
@@ -117,9 +131,88 @@ function showPopup() {
   occupiedRects.push(rect);
 }
 
+function showBreakScreen() {
+  if (breakOverlay) return;
+
+  const BREAK_SECONDS = 60; // match your BREAK_MINUTES * 60
+  let secondsLeft = BREAK_SECONDS;
+
+  breakOverlay = document.createElement("div");
+  breakOverlay.style.cssText = `
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 9999999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    font-family: sans-serif;
+    color: white;
+  `;
+
+  breakOverlay.innerHTML = `
+    <div style="font-size: 48px">🌙</div>
+    <div style="font-size: 22px; font-weight: 600">Time for a break</div>
+    <div id="break-timer" style="font-size: 48px; font-weight: 300; letter-spacing: 0.05em">0:06</div>
+    <button id="break-end-btn" style="
+      margin-top: 8px;
+      padding: 10px 28px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 99px;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+    ">End Break Early</button>
+  `;
+
+  document.body.appendChild(breakOverlay);
+
+  function updateTimer() {
+    const m = Math.floor(secondsLeft / 60);
+    const s = secondsLeft % 60;
+    const el = document.getElementById("break-timer");
+    if (el) el.textContent = `${m}:${String(s).padStart(2, "0")}`;
+  }
+
+  updateTimer();
+  breakInterval = setInterval(() => {
+    secondsLeft--;
+    updateTimer();
+    if (secondsLeft <= 0) {
+      clearInterval(breakInterval);
+      chrome.runtime.sendMessage({ type: "END_BREAK" });
+    }
+  }, 1000);
+}
+
+function hideBreakScreen() {
+  if (breakOverlay) {
+    breakOverlay.remove();
+    breakOverlay = null;
+  }
+  clearInterval(breakInterval);
+}
+
 chrome.runtime.onMessage.addListener((msg) => {
-  if (msg.phase === "alarm") {
-    showPopup();
-    console.log("alarm is going");
+    console.log('message received:', msg.phase);
+  if (msg.phase === 'warning') {
+    startWarningPopups();
+  }
+
+  if (msg.phase === "break") {
+    stopWarningPopups();
+    // show your full screen overlay here
+    showBreakScreen();
+  }
+
+  if (msg.phase === "work") {
+    // clear everything
+    stopWarningPopups();
+    document.querySelectorAll(".blob-popup").forEach((el) => el.remove());
+    occupiedRects.length = 0;
+    hideBreakScreen();
   }
 });
