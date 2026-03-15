@@ -18,11 +18,11 @@ if (localStorage.getItem("tabState") && localStorage.getItem("tabState") === "tr
 
 tabButton.addEventListener("change", async function() {
     localStorage.setItem("tabState", this.checked)
+    localStorage.setItem("timerValue", Number(timeSlider.value))
     if (this.checked) {
         console.log('TAB enabled');
         console.log("Starting work alarm")
-        chrome.alarms.create("work-alarm", { delayInMinutes: Number(timeSlider.value) });
-        // chrome.alarms.create("warning-alarm", { delayInMinutes: (1 / 60) * 15, periodInMinutes: (1 / 60) * 15 });
+        chrome.alarms.create("work-alarm", { delayInMinutes: Number(timeSlider.value)});
     }
     else {
         console.log('TAB disabled')
