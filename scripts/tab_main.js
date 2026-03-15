@@ -2,10 +2,9 @@ const tabButton = document.getElementById("tabButton");
 const timerButton = document.getElementById("timerButton");
 const gameButton = document.getElementById("gameButton");
 
-if (localStorage.getItem("tabState") === "true") {
+if (localStorage.getItem("tabState") && localStorage.getItem("tabState") === "true" ) {
     tabButton.checked = true
-}
-else {
+} else {
     tabButton.checked = false
 }
 
@@ -14,9 +13,10 @@ tabButton.addEventListener("change", async function() {
     if (this.checked) {
         console.log('TAB enabled');
         console.log("Starting alarm")
-        chrome.alarms.create({ periodInMinutes: (1 / 60) * 3 });
+        chrome.alarms.create({ delayInMinutes: (1 / 60) * 15, periodInMinutes: (1 / 60) * 15 });
     }
     else {
         console.log('TAB disabled')
+        chrome.alarms.clear("screentime-alarm")
     }
 });
