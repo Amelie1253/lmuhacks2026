@@ -1,21 +1,24 @@
+
 let phase = 'work';
 let workStart = Date.now();
+// const timeSlider = document.getElementById("timeSlider")
 
-const WORK_MINUTES = 0.1; 
+
+// const WORK_MINUTES = Number(timeSlider.value); 
 const WARN_MINUTES = 2.5;  
-const BREAK_MINUTES = 1; 
 
 chrome.alarms.create('tick', { periodInMinutes: 1/60 }); // every second
 
 chrome.alarms.onAlarm.addListener(async () => {
+  const { workMinutes = 30 } = await chrome.storage.local.get('workMinutes');
   const elapsed = (Date.now() - workStart) / 1000 / 60; // minutes elapsed
 
-  if (phase === 'work' && elapsed >= WORK_MINUTES ) {
+  if (phase === 'work' && elapsed >= workMinutes ) {
     phase = 'warning';
     broadcast({ phase: 'warning' });
   }
 
-  if (phase === 'warning' && elapsed >= WORK_MINUTES + WARN_MINUTES) {
+  if (phase === 'warning' && elapsed >= workMinutes + WARN_MINUTES) {
     phase = 'break';
     broadcast({ phase: 'break' });
   }

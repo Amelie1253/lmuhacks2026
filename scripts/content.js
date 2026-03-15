@@ -233,6 +233,7 @@ chrome.runtime.onMessage.addListener((msg) => {
   if (msg.phase === "work") {
     // clear everything
     stopWarningPopups();
+    document.getElementById('start-break-btn').remove()
     document.querySelectorAll(".blob-popup").forEach((el) => el.remove());
     occupiedRects.length = 0;
     hideBreakScreen();
