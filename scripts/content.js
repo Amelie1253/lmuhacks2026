@@ -118,7 +118,7 @@ function showPopup() {
 }
 
 chrome.runtime.onMessage.addListener((msg) => {
-    if (msg.phase === 'screentime-alarm') {
+    if (msg.phase === 'warning-alarm') {
       console.log("Showing popup")
       showPopup();
     }
