@@ -85,6 +85,30 @@ function findOpenPosition(width, height) {
 }
 
 function startWarningPopups() {
+  const breakBtn = document.createElement("div");
+  breakBtn.id = "start-break-btn";
+  breakBtn.style.cssText = `
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999999;
+    padding: 12px 28px;
+    background: #E8D6FF;
+    border: 2px solid #CBA8FF;
+    border-radius: 99px;
+    font-family: sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: #5B2D9E;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  `;
+  breakBtn.textContent = "🌙 Start Break Early";
+  breakBtn.addEventListener("click", () => {
+    chrome.runtime.sendMessage({ type: "START_BREAK" });
+  });
+  document.body.appendChild(breakBtn);
   showPopup(); // spawn one immediately
   warningInterval = setInterval(() => {
     showPopup();
@@ -156,16 +180,14 @@ function showBreakScreen() {
     <div style="font-size: 48px">🌙</div>
     <div style="font-size: 22px; font-weight: 600">Time for a break</div>
     <div id="break-timer" style="font-size: 48px; font-weight: 300; letter-spacing: 0.05em">0:06</div>
-    <button id="break-end-btn" style="
-      margin-top: 8px;
-      padding: 10px 28px;
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.3);
-      border-radius: 99px;
-      color: white;
-      font-size: 14px;
-      cursor: pointer;
-    ">End Break Early</button>
+    <iframe
+    src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1"
+    width="560"
+    height="315"
+    style="border:none; border-radius:12px; box-shadow: 0 8px 40px rgba(0,0,0,0.5);"
+    allow="autoplay; encrypted-media"
+    allowfullscreen
+  ></iframe>
   `;
 
   document.body.appendChild(breakOverlay);
@@ -197,8 +219,8 @@ function hideBreakScreen() {
 }
 
 chrome.runtime.onMessage.addListener((msg) => {
-    console.log('message received:', msg.phase);
-  if (msg.phase === 'warning') {
+  console.log("message received:", msg.phase);
+  if (msg.phase === "warning") {
     startWarningPopups();
   }
 

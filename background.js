@@ -1,7 +1,7 @@
 let phase = 'work';
 let workStart = Date.now();
 
-const WORK_MINUTES = 0.5; 
+const WORK_MINUTES = 0.1; 
 const WARN_MINUTES = 2.5;  
 const BREAK_MINUTES = 1; 
 
@@ -13,7 +13,6 @@ chrome.alarms.onAlarm.addListener(async () => {
   if (phase === 'work' && elapsed >= WORK_MINUTES ) {
     phase = 'warning';
     broadcast({ phase: 'warning' });
-    cs
   }
 
   if (phase === 'warning' && elapsed >= WORK_MINUTES + WARN_MINUTES) {
@@ -27,6 +26,11 @@ chrome.runtime.onMessage.addListener((msg) => {
     phase = 'work';
     workStart = Date.now();
     broadcast({ phase: 'work' });
+  }
+  if (msg.type === 'START_BREAK') {
+    phase = 'break';
+    workStart = Date.now();
+    broadcast({ phase: 'break' });
   }
 });
 
