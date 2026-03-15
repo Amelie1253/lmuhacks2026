@@ -1,75 +1,123 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
 html {
-    border: 2px solid #800000;
+    border: 2px solid #e8d5f5;
     margin: 0;
     padding: 0;
 }
 
 body {
-    width: 200px;
-    background-color: peachpuff;
-    color: maroon;
-    margin: 10px;
+    width: 220px;
+    background: linear-gradient(160deg, #fdf0f8 0%, #f0f4ff 100%);
+    color: #9b6bb5;
+    margin: 0;
+    padding: 18px 16px 20px;
+    font-family: 'Nunito', sans-serif;
+    border-radius: 20px;
 }
 
-/* The switch - the box around the slider */
+h2 {
+    font-size: 18px;
+    font-weight: 800;
+    color: #b06ec9;
+    margin: 0 0 14px;
+}
+
+h3 {
+    font-size: 12px;
+    font-weight: 800;
+    color: #9b6bb5;
+    margin: 0 0 4px;
+}
+
+p {
+    font-size: 10.5px;
+    color: #b49bc5;
+    margin: 3px 0 8px;
+    line-height: 1.45;
+    font-weight: 600;
+}
+
+/* Section card wrapper — add class="section" to each h3+p+toggle block in your HTML */
+.section {
+    background: rgba(255, 255, 255, 0.72);
+    border-radius: 14px;
+    padding: 11px 13px 12px;
+    margin-bottom: 10px;
+    border: 1.5px solid #ede0f7;
+}
+
+/* Slider row */
+span {
+    font-size: 10px;
+    font-weight: 700;
+    color: #b49bc5;
+}
+
+.value-label {
+    font-size: 11px;
+    font-weight: 800;
+    color: #b06ec9;
+}
+
+input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    border-radius: 4px;
+    background: #e4c9f5;
+    outline: none;
+    vertical-align: middle;
+}
+
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #c984e0;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 1px 4px rgba(180, 100, 220, 0.25);
+}
+
+/* Toggle switch */
 .switch {
-  position: relative;
-  display: inline-block;
-  width: 60px;
-  height: 34px;
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
 }
 
-/* Hide default HTML checkbox */
 .switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
+    opacity: 0;
+    width: 0;
+    height: 0;
 }
 
-/* The slider */
 .slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: .4s;
-  transition: .4s;
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #e4c9f5;
+    border-radius: 22px;
+    transition: .3s;
 }
 
 .slider:before {
-  position: absolute;
-  content: "";
-  height: 26px;
-  width: 26px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: .3s;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
-input:checked + .slider {
-  background-color: #2196F3;
-}
-
-input:focus + .slider {
-  box-shadow: 0 0 1px #2196F3;
-}
-
-input:checked + .slider:before {
-  -webkit-transform: translateX(26px);
-  -ms-transform: translateX(26px);
-  transform: translateX(26px);
-}
-
-/* Rounded sliders */
-.slider.round {
-  border-radius: 34px;
-}
-
-.slider.round:before {
-  border-radius: 50%;
-}
+input:checked + .slider { background: #c77de3; }
+input:focus + .slider { box-shadow: 0 0 0 2px #e4c9f5; }
+input:checked + .slider:before { transform: translateX(18px); }
