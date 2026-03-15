@@ -1,4 +1,6 @@
 const occupiedRects = [];
+let breakOverlay = null;
+let breakInterval = null;
 
 const BLOB_CONFIGS = [
   {
@@ -82,6 +84,42 @@ function findOpenPosition(width, height) {
   return null;
 }
 
+function startWarningPopups() {
+  const breakBtn = document.createElement("div");
+  breakBtn.id = "start-break-btn";
+  breakBtn.style.cssText = `
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999999;
+    padding: 12px 28px;
+    background: #E8D6FF;
+    border: 2px solid #CBA8FF;
+    border-radius: 99px;
+    font-family: sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: #5B2D9E;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  `;
+  breakBtn.textContent = "🌙 Start Break Early";
+  breakBtn.addEventListener("click", () => {
+    chrome.runtime.sendMessage({ type: "START_BREAK" });
+  });
+  document.body.appendChild(breakBtn);
+  showPopup(); // spawn one immediately
+  warningInterval = setInterval(() => {
+    showPopup();
+  }, 5000);
+}
+
+function stopWarningPopups() {
+  clearTimeout(warningInterval);
+  warningInterval = null;
+}
+
 function showPopup() {
   const width = 300,
     height = 300;
@@ -117,9 +155,86 @@ function showPopup() {
   occupiedRects.push(rect);
 }
 
-chrome.runtime.onMessage.addListener((msg) => {
-    if (msg.phase === 'warning-alarm') {
-      console.log("Showing popup")
-      showPopup();
+function showBreakScreen() {
+  if (breakOverlay) return;
+
+  const BREAK_SECONDS = 60; // match your BREAK_MINUTES * 60
+  let secondsLeft = BREAK_SECONDS;
+
+  breakOverlay = document.createElement("div");
+  breakOverlay.style.cssText = `
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 9999999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    font-family: sans-serif;
+    color: white;
+  `;
+
+  breakOverlay.innerHTML = `
+    <div style="font-size: 48px">🌙</div>
+    <div style="font-size: 22px; font-weight: 600">Time for a break</div>
+    <div id="break-timer" style="font-size: 48px; font-weight: 300; letter-spacing: 0.05em">0:06</div>
+    <iframe
+    src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1"
+    width="560"
+    height="315"
+    style="border:none; border-radius:12px; box-shadow: 0 8px 40px rgba(0,0,0,0.5);"
+    allow="autoplay; encrypted-media"
+    allowfullscreen
+  ></iframe>
+  `;
+
+  document.body.appendChild(breakOverlay);
+
+  function updateTimer() {
+    const m = Math.floor(secondsLeft / 60);
+    const s = secondsLeft % 60;
+    const el = document.getElementById("break-timer");
+    if (el) el.textContent = `${m}:${String(s).padStart(2, "0")}`;
+  }
+
+  updateTimer();
+  breakInterval = setInterval(() => {
+    secondsLeft--;
+    updateTimer();
+    if (secondsLeft <= 0) {
+      clearInterval(breakInterval);
+      chrome.runtime.sendMessage({ type: "END_BREAK" });
     }
-  });
+  }, 1000);
+}
+
+function hideBreakScreen() {
+  if (breakOverlay) {
+    breakOverlay.remove();
+    breakOverlay = null;
+  }
+  clearInterval(breakInterval);
+}
+
+chrome.runtime.onMessage.addListener((msg) => {
+  console.log("message received:", msg.phase);
+  if (msg.phase === "warning") {
+    startWarningPopups();
+  }
+
+  if (msg.phase === "break") {
+    stopWarningPopups();
+    // show your full screen overlay here
+    showBreakScreen();
+  }
+
+  if (msg.phase === "work") {
+    // clear everything
+    stopWarningPopups();
+    document.querySelectorAll(".blob-popup").forEach((el) => el.remove());
+    occupiedRects.length = 0;
+    hideBreakScreen();
+  }
+});
